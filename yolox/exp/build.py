@@ -9,6 +9,7 @@ import sys
 
 def get_exp_by_file(exp_file):
     try:
+        print(os.path.dirname(exp_file), os.path.basename(exp_file).split(".")[0])
         sys.path.append(os.path.dirname(exp_file))
         current_exp = importlib.import_module(os.path.basename(exp_file).split(".")[0])
         exp = current_exp.Exp()

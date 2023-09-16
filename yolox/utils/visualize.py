@@ -49,7 +49,7 @@ def get_color(idx):
     return color
 
 
-def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=None):
+def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=None, face_rois=None): # face_rois 추가
     im = np.ascontiguousarray(np.copy(image))
     im_h, im_w = im.shape[:2]
 
@@ -66,7 +66,7 @@ def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=N
     cv2.putText(im, 'frame: %d fps: %.2f num: %d' % (frame_id, fps, len(tlwhs)),
                 (0, int(15 * text_scale)), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), thickness=2)
 
-    for i, tlwh in enumerate(tlwhs):
+    for i, (tlwh, face_roi) in enumerate(zip(tlwhs, face_rois)): # face_rois 를 for loop
         x1, y1, w, h = tlwh
         intbox = tuple(map(int, (x1, y1, x1 + w, y1 + h)))
         obj_id = int(obj_ids[i])
@@ -75,6 +75,10 @@ def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=N
             id_text = id_text + ', {}'.format(int(ids2[i]))
         color = get_color(abs(obj_id))
         cv2.rectangle(im, intbox[0:2], intbox[2:4], color=color, thickness=line_thickness)
+        if face_roi is not None: # face_roi 가 none이 아닌 경우 rectangle 그리기
+            x1, y1, x2, y2 = face_roi[0]
+            cv2.rectangle(im, [x1, y1], [x2, y2], color=color, thickness=line_thickness)
+        
         cv2.putText(im, id_text, (intbox[0], intbox[1]), cv2.FONT_HERSHEY_PLAIN, text_scale, (0, 0, 255),
                     thickness=text_thickness)
     return im
